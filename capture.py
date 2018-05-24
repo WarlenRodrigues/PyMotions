@@ -14,6 +14,7 @@ import time
 
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
+DATA_DIR = os.path.join(CUR_DIR, 'data')
 
 
 def time_str():
@@ -30,7 +31,10 @@ predictor = dlib.shape_predictor(os.path.join(os.path.join(CUR_DIR, 'shape_predi
 
 cap = cv2.VideoCapture(0)
 
-metadata_filename = os.path.join(CUR_DIR, 'data', 'data-{}.csv'.format(time_str()))
+if not os.path.isdir(DATA_DIR):
+	os.mkdir(DATA_DIR)
+
+metadata_filename = os.path.join(DATA_DIR, 'data-{}.csv'.format(time_str()))
 with open(metadata_filename, 'w') as metadata:
 	writer = csv.writer(metadata)
 	writer.writerow(['image', 'face_x', 'face_y', 'face_width', 'face_height'] +

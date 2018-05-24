@@ -4,14 +4,20 @@ import argparse
 import pandas as pd
 import numpy as np
 
+from merge_csv import merge_csv
+
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Create argument parser and parse args
 ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--data", required=True,
+ap.add_argument("-d", "--data", required=False,
 	help="path to csv metadata file")
 args = vars(ap.parse_args())
+
+if not args['data']:
+    merge_csv()
+    args['data'] = os.path.join(CUR_DIR, 'data', 'data.csv')
 
 data = pd.read_csv(args['data'])
 for idx, row in data.iterrows():

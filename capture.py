@@ -29,7 +29,12 @@ print("Press ESC to close and 'c' to save an image")
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(os.path.join(os.path.join(CUR_DIR, 'shape_predictor_68_face_landmarks.dat')))
 
+# Use an image database
+#cap = cv2.imread('hall_box_battery_mp2.mp4')
+
+# Use Webcam resource
 cap = cv2.VideoCapture(0)
+
 
 if not os.path.isdir(DATA_DIR):
 	os.mkdir(DATA_DIR)

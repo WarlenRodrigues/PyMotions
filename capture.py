@@ -11,6 +11,9 @@ import cv2
 import os
 import csv
 import time
+from PIL import Image
+import glob
+from Throught_Img_Folder import Throught_Img_Folder
 
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -30,10 +33,10 @@ detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(os.path.join(os.path.join(CUR_DIR, 'shape_predictor_68_face_landmarks.dat')))
 
 # Use an image database
-#cap = cv2.imread('hall_box_battery_mp2.mp4')
+cap = Throught_Img_Folder("Datateste")
 
 # Use Webcam resource
-cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture(0)
 
 
 if not os.path.isdir(DATA_DIR):

@@ -2,11 +2,11 @@ import csv
 import os
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_FILENAME = 'data.csv'
+DATA_FILENAME = 'DataSet.csv'
 
 
 def merge_csv():
-    data_dir = os.path.join(CUR_DIR, 'data')
+    data_dir = os.path.join(CUR_DIR, 'GuardaCSV')
     with open(os.path.join(data_dir, DATA_FILENAME), 'w') as datafile:
         is_first_file = True
         for filename in os.listdir(data_dir):

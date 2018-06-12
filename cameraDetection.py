@@ -13,9 +13,10 @@ import os
 import csv
 import time
 
-dados = pd.read_csv("DataSet2.csv", sep=",")
+font = cv2.FONT_HERSHEY_SIMPLEX
+text = " "
 
-dados.sort_values(by=['image'])
+dados = pd.read_csv("DataSet2.csv", sep=",")
 #---------------------Angulos--------------------------------------
 
 ang1=[]
@@ -89,61 +90,43 @@ if not os.path.isdir(DATA_DIR):
 
 then = time.clock()
 
-metadata_filename = os.path.join(DATA_DIR, 'data-{}.csv'.format(time_str()))
-with open(metadata_filename, 'w') as metadata:
-	writer = csv.writer(metadata)
-	writer.writerow(['image', 'face_x', 'face_y', 'face_width', 'face_height'] +
-					['x' + str(i // 2) if i % 2 == 0 else 'y' + str((i - 1) // 2) for i in range(136)])
-	running = True
-	while running and cap.isOpened():
-		ret, frame = cap.read()
-		cv2.imshow('Camera', frame)
-		key = cv2.waitKey(1)
-		now = time.clock()
-		if key == 27:
-			running = False
-			cap.release()
-		elif (now-then)>1:
-			then = time.clock()
-			filename = 'data-{}.png'.format(time_str())
-			full_filename = os.path.join(CUR_DIR, 'data', filename)
+running = True
+while running and cap.isOpened():
+	ret, frame = cap.read()
+	#cv2.imshow('Camera', frame)
+	key = cv2.waitKey(1)
+	now = time.clock()
+	if key == 27:
+		running = False
+		cap.release()
+	elif (now-then)>0.5:
+		then = time.clock()
+		filename = 'data-{}.png'.format(time_str())
+		full_filename = os.path.join(CUR_DIR, 'data', filename)
 
-			# save image
-			cv2.imwrite(full_filename, frame)
+		gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-			gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+		# detect faces in the grayscale image
+		rects = detector(gray, 1)
 
-			# detect faces in the grayscale image
-			rects = detector(gray, 1)
+		largest_face = None
+		largest_face_landmarks = []
+		# loop over the face detections
+		for (i, rect) in enumerate(rects):
+			# determine the facial landmarks for the face region, then
+			# convert the facial landmark (x, y)-coordinates to a NumPy
+			# array
+			shape = predictor(gray, rect)
+			shape = face_utils.shape_to_np(shape)
 
-			largest_face = None
-			largest_face_landmarks = None
-			# loop over the face detections
-			for (i, rect) in enumerate(rects):
-				# determine the facial landmarks for the face region, then
-				# convert the facial landmark (x, y)-coordinates to a NumPy
-				# array
-				shape = predictor(gray, rect)
-				shape = face_utils.shape_to_np(shape)
+			# convert dlib's rectangle to a OpenCV-style bounding box
+			# [i.e., (x, y, w, h)], then draw the face bounding box
+			(x, y, w, h) = face_utils.rect_to_bb(rect)
+			if largest_face is None or largest_face[2] < w:
+				largest_face = (x, y, w, h)
+				largest_face_landmarks = shape
 
-				# convert dlib's rectangle to a OpenCV-style bounding box
-				# [i.e., (x, y, w, h)], then draw the face bounding box
-				(x, y, w, h) = face_utils.rect_to_bb(rect)
-				if largest_face is None or largest_face[2] < w:
-					largest_face = (x, y, w, h)
-					largest_face_landmarks = shape
-			if largest_face is not None:
-				writer.writerow([filename] + list(largest_face) + list(largest_face_landmarks.flatten()))
-
-			if largest_face is not None:
-				(x, y, w, h) = largest_face
-				cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-
-				# loop over the (x, y)-coordinates for the facial landmarks
-				# and draw them on the image
-				for (x, y) in largest_face_landmarks:
-					cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
-
+		if largest_face_landmarks!=[]:
 			#PREVISAO
 			dados_face = list(largest_face_landmarks.flatten())
 
@@ -156,8 +139,6 @@ with open(metadata_filename, 'w') as metadata:
 					d["y"+str((i-1)//2)] = dados_face[i]
 
 			dados_atuais = pd.Series(data=d)
-
-			print(dados_atuais['x63'])
 
 			#ANGULO 1
 			vec1_1 = np.array([dados_atuais['x63']-dados_atuais['x48'], dados_atuais['y63']-dados_atuais['y48']])
@@ -183,13 +164,18 @@ with open(metadata_filename, 'w') as metadata:
 			vec5_1 = np.array([dados_atuais['x31']-dados_atuais['x51'], dados_atuais['y31']-dados_atuais['y51']])
 			vec5_2 = np.array([dados_atuais['x35']-dados_atuais['x51'], dados_atuais['y35']-dados_atuais['y51']])
 			angulo5 = np.math.atan2(np.linalg.det([vec5_1,vec5_2]),np.dot(vec5_1,vec5_2))
-
-			print(angulo1,angulo2,angulo3,angulo4,angulo5)
 									
 			d = {"angulo1":[angulo1], "angulo2":[angulo2], "angulo3":[angulo3], "angulo4":[angulo4], "angulo5":[angulo5]}
 
 			Xt = pd.DataFrame(data=d)
 
-			print("Xt:", Xt)
+			if clf.predict(Xt)==0:
+				text = "Neutro"
+			if clf.predict(Xt)==1:
+				text = "Feliz"
+			if clf.predict(Xt)==2:
+				text = "Triste"
 
-			print(clf.predict(Xt))
+	cv2.putText(frame,text,(0,450), font, 2,(255,255,255),2,cv2.LINE_AA)
+
+	cv2.imshow('Camera', frame)

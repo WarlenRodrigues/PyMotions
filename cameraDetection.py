@@ -25,38 +25,42 @@ ang3=[]
 ang4=[]
 ang5=[]
 
+def angulos(row):
+	#ANGULO 1
+	vec1_1 = np.array([row['x63']-row['x48'], row['y63']-row['y48']])
+	vec1_2 = np.array([row['x67']-row['x48'], row['y67']-row['y48']])
+	angulo1 = np.math.atan2(np.linalg.det([vec1_1,vec1_2]),np.dot(vec1_1,vec1_2))
+
+	#ANGULO 2
+	vec2_1 = np.array([row['x33']-row['x48'], row['y62']-row['y48']])
+	vec2_2 = vec1_1
+	angulo2 = np.math.atan2(np.linalg.det([vec2_1,vec2_2]),np.dot(vec2_1,vec2_2))
+
+	#ANGULO 3
+	vec3_1 = np.array([row['x31']-row['x48'], row['y31']-row['y48']])
+	vec3_2 = np.array([row['x54']-row['x48'], row['y54']-row['y48']])
+	angulo3 = np.math.atan2(np.linalg.det([vec3_1,vec3_2]),np.dot(vec3_1,vec3_2))
+
+	#ANGULO 4
+	vec4_1 = np.array([row['x54']-row['x57'], row['y54']-row['y57']])
+	vec4_2 = np.array([row['x48']-row['x57'], row['y48']-row['y57']])
+	angulo4 = np.math.atan2(np.linalg.det([vec4_1,vec4_2]),np.dot(vec4_1,vec4_2))
+
+	#ANGULO 5
+	vec5_1 = np.array([row['x31']-row['x51'], row['y31']-row['y51']])
+	vec5_2 = np.array([row['x35']-row['x51'], row['y35']-row['y51']])
+	angulo5 = np.math.atan2(np.linalg.det([vec5_1,vec5_2]),np.dot(vec5_1,vec5_2))
+
+	return angulo1,angulo2,angulo3,angulo4,angulo5
+
 for index,row in dados.iterrows():
-    
-    #ANGULO 1
-    vec1_1 = np.array([row['x63']-row['x48'], row['y63']-row['y48']])
-    vec1_2 = np.array([row['x67']-row['x48'], row['y67']-row['y48']])
-    angulo1 = np.math.atan2(np.linalg.det([vec1_1,vec1_2]),np.dot(vec1_1,vec1_2))
-    ang1.append(angulo1)
-    
-    #ANGULO 2
-    vec2_1 = np.array([row['x33']-row['x48'], row['y62']-row['y48']])
-    vec2_2 = vec1_1
-    angulo2 = np.math.atan2(np.linalg.det([vec2_1,vec2_2]),np.dot(vec2_1,vec2_2))
-    ang2.append(angulo2)
-    
-    #ANGULO 3
-    vec3_1 = np.array([row['x31']-row['x48'], row['y31']-row['y48']])
-    vec3_2 = np.array([row['x54']-row['x48'], row['y54']-row['y48']])
-    angulo3 = np.math.atan2(np.linalg.det([vec3_1,vec3_2]),np.dot(vec3_1,vec3_2))
-    ang3.append(angulo3)
-    
-    #ANGULO 4
-    vec4_1 = np.array([row['x54']-row['x57'], row['y54']-row['y57']])
-    vec4_2 = np.array([row['x48']-row['x57'], row['y48']-row['y57']])
-    angulo4 = np.math.atan2(np.linalg.det([vec4_1,vec4_2]),np.dot(vec4_1,vec4_2))
-    ang4.append(angulo4)
-    
-    #ANGULO 5
-    vec5_1 = np.array([row['x31']-row['x51'], row['y31']-row['y51']])
-    vec5_2 = np.array([row['x35']-row['x51'], row['y35']-row['y51']])
-    angulo5 = np.math.atan2(np.linalg.det([vec5_1,vec5_2]),np.dot(vec5_1,vec5_2))
-    ang5.append(angulo5)
-    
+	angulo1,angulo2,angulo3,angulo4,angulo5 = angulos(row)
+	ang1.append(angulo1)
+	ang2.append(angulo2)
+	ang3.append(angulo3)
+	ang4.append(angulo4)
+	ang5.append(angulo5)
+
 dados['angulo1'] = pd.Series(ang1)
 dados['angulo2'] = pd.Series(ang2)
 dados['angulo3'] = pd.Series(ang3)
@@ -100,6 +104,7 @@ while running and cap.isOpened():
 		running = False
 		cap.release()
 	elif (now-then)>0.5:
+		text = " "
 		then = time.clock()
 		filename = 'data-{}.png'.format(time_str())
 		full_filename = os.path.join(CUR_DIR, 'data', filename)
@@ -127,6 +132,9 @@ while running and cap.isOpened():
 				largest_face_landmarks = shape
 
 		if largest_face_landmarks!=[]:
+
+			face = True
+
 			#PREVISAO
 			dados_face = list(largest_face_landmarks.flatten())
 
@@ -140,30 +148,7 @@ while running and cap.isOpened():
 
 			dados_atuais = pd.Series(data=d)
 
-			#ANGULO 1
-			vec1_1 = np.array([dados_atuais['x63']-dados_atuais['x48'], dados_atuais['y63']-dados_atuais['y48']])
-			vec1_2 = np.array([dados_atuais['x67']-dados_atuais['x48'], dados_atuais['y67']-dados_atuais['y48']])
-			angulo1 = np.math.atan2(np.linalg.det([vec1_1,vec1_2]),np.dot(vec1_1,vec1_2))
-		
-			#ANGULO 2
-			vec2_1 = np.array([dados_atuais['x33']-dados_atuais['x48'], dados_atuais['y62']-dados_atuais['y48']])
-			vec2_2 = vec1_1
-			angulo2 = np.math.atan2(np.linalg.det([vec2_1,vec2_2]),np.dot(vec2_1,vec2_2))
-		
-			#ANGULO 3
-			vec3_1 = np.array([dados_atuais['x31']-dados_atuais['x48'], dados_atuais['y31']-dados_atuais['y48']])
-			vec3_2 = np.array([dados_atuais['x54']-dados_atuais['x48'], dados_atuais['y54']-dados_atuais['y48']])
-			angulo3 = np.math.atan2(np.linalg.det([vec3_1,vec3_2]),np.dot(vec3_1,vec3_2))
-		
-			#ANGULO 4
-			vec4_1 = np.array([dados_atuais['x54']-dados_atuais['x57'], dados_atuais['y54']-dados_atuais['y57']])
-			vec4_2 = np.array([dados_atuais['x48']-dados_atuais['x57'], dados_atuais['y48']-dados_atuais['y57']])
-			angulo4 = np.math.atan2(np.linalg.det([vec4_1,vec4_2]),np.dot(vec4_1,vec4_2))
-		
-			#ANGULO 5
-			vec5_1 = np.array([dados_atuais['x31']-dados_atuais['x51'], dados_atuais['y31']-dados_atuais['y51']])
-			vec5_2 = np.array([dados_atuais['x35']-dados_atuais['x51'], dados_atuais['y35']-dados_atuais['y51']])
-			angulo5 = np.math.atan2(np.linalg.det([vec5_1,vec5_2]),np.dot(vec5_1,vec5_2))
+			angulo1,angulo2,angulo3,angulo4,angulo5 = angulos(dados_atuais)
 									
 			d = {"angulo1":[angulo1], "angulo2":[angulo2], "angulo3":[angulo3], "angulo4":[angulo4], "angulo5":[angulo5]}
 

@@ -1,10 +1,10 @@
 import pandas as pd
 import numpy as np
-"""from sklearn import datasets
+from sklearn import datasets
 from sklearn.multiclass import OneVsRestClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn import tree
-import matplotlib.pyplot as plt"""
+import matplotlib.pyplot as plt
 from imutils import face_utils
 import imutils
 import dlib
@@ -13,7 +13,7 @@ import os
 import csv
 import time
 
-"""dados = pd.read_csv("data/Dataset.csv", sep=",")
+dados = pd.read_csv("data/Dataset.csv", sep=",")
 
 dados.sort_values(by=['image'])
 #---------------------Angulos--------------------------------------
@@ -66,7 +66,7 @@ dados['angulo5'] = pd.Series(ang5)
 X = dados.loc[:, ("angulo1", "angulo2", "angulo3", "angulo4", "angulo5")]
 y = dados.loc[:, ("categoria")]
 
-clf = OneVsRestClassifier(tree.DecisionTreeClassifier()).fit(X, y)"""
+clf = OneVsRestClassifier(tree.DecisionTreeClassifier()).fit(X, y)
 #---------------------Teste-----------------------------------------
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -144,6 +144,36 @@ with open(metadata_filename, 'w') as metadata:
 				for (x, y) in largest_face_landmarks:
 					cv2.circle(frame, (x, y), 1, (0, 0, 255), -1)
 
-			# show the output image with the face detections + facial landmarks
-			#cv2.imshow('Detected', frame)
-		
+			#PREVISAO
+			dados_face = list(largest_face_landmarks.flatten())
+
+			#ANGULO 1
+			vec1_1 = np.array([dados_face[126]-dados_face[96], dados_face[127]-dados_face[97]])
+			vec1_2 = np.array([dados_face[134]-dados_face[96], dados_face[135]-dados_face[97]])
+			angulo1 = np.math.atan2(np.linalg.det([vec1_1,vec1_2]),np.dot(vec1_1,vec1_2))
+			
+			#ANGULO 2
+			vec2_1 = np.array([dados_face[66]-dados_face[96], dados_face[67]-dados_face[97]])
+			vec2_2 = vec1_1
+			angulo2 = np.math.atan2(np.linalg.det([vec2_1,vec2_2]),np.dot(vec2_1,vec2_2))
+
+			#ANGULO 3
+			vec3_1 = np.array([dados_face[62]-dados_face[96], dados_face[63]-dados_face[97]])
+			vec3_2 = np.array([dados_face[108]-dados_face[96], dados_face[109]-dados_face[97]])
+			angulo3 = np.math.atan2(np.linalg.det([vec3_1,vec3_2]),np.dot(vec3_1,vec3_2))
+	
+			#ANGULO 4
+			vec4_1 = np.array([dados_face[108]-dados_face[114], dados_face[109]-dados_face[115]])
+			vec4_2 = np.array([dados_face[96]-dados_face[114], dados_face[97]-dados_face[115]])
+			angulo4 = np.math.atan2(np.linalg.det([vec4_1,vec4_2]),np.dot(vec4_1,vec4_2))
+
+			#ANGULO 5
+			vec5_1 = np.array([dados_face[62]-dados_face[102], dados_face[63]-dados_face[103]])
+			vec5_2 = np.array([dados_face[70]-dados_face[102], dados_face[71]-dados_face[103]])
+			angulo5 = np.math.atan2(np.linalg.det([vec5_1,vec5_2]),np.dot(vec5_1,vec5_2))
+
+			d = {"angulo1":[angulo1], "angulo2":[angulo2], "angulo3":[angulo3], "angulo4":[angulo4], "angulo5":[angulo5]}
+
+			Xt = pd.DataFrame(data=d)
+
+			print(clf.predict(Xt))

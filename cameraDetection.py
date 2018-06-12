@@ -133,8 +133,6 @@ while running and cap.isOpened():
 
 		if largest_face_landmarks!=[]:
 
-			face = True
-
 			#PREVISAO
 			dados_face = list(largest_face_landmarks.flatten())
 
